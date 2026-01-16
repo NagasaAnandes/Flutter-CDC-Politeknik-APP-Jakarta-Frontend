@@ -1,29 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class SplashPage extends StatefulWidget {
+import 'splash_cubit.dart';
+import 'splash_state.dart';
+
+class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => SplashCubit()..checkAppState(),
+      child: BlocListener<SplashCubit, SplashState>(
+        listener: (context, state) {
+          if (state is SplashNavigateToOnboarding) {
+            context.goNamed('onboarding');
+          } else if (state is SplashNavigateToHome) {
+            context.goNamed('home');
+          }
+        },
+        child: const _SplashView(),
+      ),
+    );
+  }
 }
 
-class _SplashPageState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    // Simulate some initialization work
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.goNamed('onboarding');
-      // Navigate to the next page (e.g., HomePage or OnboardingPage)
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
-    });
-  }
+class _SplashView extends StatelessWidget {
+  const _SplashView();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('CDC Poltek App Splash Screen')),
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Logo
+            Image.asset(
+              'assets/images/Logo_Politeknik_APP.png',
+              width: 200,
+              height: 200,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

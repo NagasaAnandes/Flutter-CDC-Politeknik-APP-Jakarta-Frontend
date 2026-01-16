@@ -1,18 +1,86 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'onboarding_cubit.dart';
+import 'onboarding_state.dart';
+
+import 'widgets/onboarding_slide_1.dart';
+import 'widgets/onboarding_slide_2.dart';
+import 'widgets/onboarding_slide_3.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => context.goNamed('home'),
-          child: const Text('Get Started'),
-        ),
-      ),
+    return BlocProvider(
+      create: (_) => OnboardingCubit(),
+      child: const _OnboardingView(),
+    );
+  }
+}
+
+class _OnboardingView extends StatefulWidget {
+  const _OnboardingView();
+
+  @override
+  State<_OnboardingView> createState() => _OnboardingViewState();
+}
+
+class _OnboardingViewState extends State<_OnboardingView> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      builder: (context, state) {
+        // PageView contains only fully isolated slide widgets. Each slide
+        // manages its own Scaffold/Stack/background/hero/card to avoid
+        // visual overlap between pages.
+        return PageView(
+          controller: _pageController,
+          onPageChanged: context.read<OnboardingCubit>().onPageChanged,
+          children: [
+            OnboardingSlide1(
+              onNext: () {
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+            ),
+
+            OnboardingSlide2(
+              onNext: () {
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+            ),
+
+            OnboardingSlide3(
+              onFinish: () async {
+                await context.read<OnboardingCubit>().completeOnboarding();
+                if (context.mounted) context.goNamed('home');
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
