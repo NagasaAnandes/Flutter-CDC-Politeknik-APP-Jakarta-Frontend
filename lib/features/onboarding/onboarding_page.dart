@@ -75,7 +75,7 @@ class _OnboardingViewState extends State<_OnboardingView> {
             OnboardingSlide3(
               onFinish: () async {
                 await context.read<OnboardingCubit>().completeOnboarding();
-                if (context.mounted) context.goNamed('home');
+                if (context.mounted) context.goNamed('app');
               },
             ),
           ],
