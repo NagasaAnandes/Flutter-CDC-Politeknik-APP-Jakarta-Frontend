@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class HomeEventSection extends StatelessWidget {
-  const HomeEventSection({super.key});
+class HomeHighlightBanner extends StatelessWidget {
+  const HomeHighlightBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
