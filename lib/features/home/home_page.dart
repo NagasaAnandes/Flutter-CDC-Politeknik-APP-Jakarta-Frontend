@@ -21,6 +21,10 @@ class HomePage extends StatelessWidget {
               // Home Header
               HomeHeader(),
 
+              // Announcement Section
+              SizedBox(height: 16),
+              HomeAnnouncementSection(),
+
               // Highlight Banner
               SizedBox(height: 16),
               HomeHighlightBanner(),
@@ -28,10 +32,6 @@ class HomePage extends StatelessWidget {
               // Quick Menu
               SizedBox(height: 32),
               HomeQuickMenu(),
-
-              // Announcement Section
-              SizedBox(height: 32),
-              HomeAnnouncementSection(),
 
               // Job Section
               SizedBox(height: 32),

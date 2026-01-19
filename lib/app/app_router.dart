@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/announcement/announcement_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/splash/splash_page.dart';
@@ -27,6 +28,12 @@ final GoRouter appRouter = GoRouter(
       path: '/app',
       name: 'app',
       builder: (context, state) => const ShellPage(),
+    ),
+
+    GoRoute(
+      path: '/announcement',
+      name: 'announcement',
+      builder: (context, state) => const AnnouncementPage(),
     ),
   ],
   errorBuilder: (context, state) =>
