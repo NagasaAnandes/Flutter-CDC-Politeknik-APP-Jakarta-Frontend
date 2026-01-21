@@ -1,19 +1,25 @@
 import '../models/announcement_model.dart';
 
-abstract class AnnouncementState {}
-
-class AnnouncementInitial extends AnnouncementState {}
-
-class AnnouncementLoading extends AnnouncementState {}
-
-class AnnouncementLoaded extends AnnouncementState {
+class AnnouncementState {
   final List<AnnouncementModel> items;
+  final bool isLoading;
+  final String? error;
 
-  AnnouncementLoaded(this.items);
-}
+  const AnnouncementState({
+    this.items = const [],
+    this.isLoading = false,
+    this.error,
+  });
 
-class AnnouncementError extends AnnouncementState {
-  final String message;
-
-  AnnouncementError(this.message);
+  AnnouncementState copyWith({
+    List<AnnouncementModel>? items,
+    bool? isLoading,
+    String? error,
+  }) {
+    return AnnouncementState(
+      items: items ?? this.items,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
 }

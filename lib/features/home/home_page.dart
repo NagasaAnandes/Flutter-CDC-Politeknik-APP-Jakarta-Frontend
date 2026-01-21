@@ -1,47 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/home/widgets/home_announcement_section.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/home/widgets/home_event_section.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/home/widgets/home_header.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/home/widgets/home_highlight_banner.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/home/widgets/home_job_section.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/home/widgets/home_quick_menu.dart';
+
+import 'widgets/home_announcement_section.dart';
+import 'widgets/home_event_section.dart';
+import 'widgets/home_header.dart';
+import 'widgets/home_job_section.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(title: const Text('Home')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              // Home Header
-              HomeHeader(),
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            HomeHeader(),
 
-              // Announcement Section
-              SizedBox(height: 16),
-              HomeAnnouncementSection(),
+            SizedBox(height: 16),
+            HomeAnnouncementSection(),
 
-              // Highlight Banner
-              SizedBox(height: 16),
-              HomeHighlightBanner(),
+            SizedBox(height: 32),
+            HomeJobSection(),
 
-              // Quick Menu
-              SizedBox(height: 32),
-              HomeQuickMenu(),
-
-              // Job Section
-              SizedBox(height: 32),
-              HomeJobSection(),
-
-              // Event Section
-              SizedBox(height: 32),
-              HomeEventSection(),
-            ],
-          ),
+            SizedBox(height: 32),
+            HomeEventSection(),
+          ],
         ),
       ),
     );

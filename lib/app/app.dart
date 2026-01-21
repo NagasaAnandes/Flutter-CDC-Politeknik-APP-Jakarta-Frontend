@@ -8,11 +8,13 @@ class CDCApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'CDC Politeknik APP Jakarta',
-      theme: AppTheme.light,
-      routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
+    return buildAppWithProviders(
+      child: MaterialApp.router(
+        title: 'CDC Politeknik APP Jakarta',
+        theme: AppTheme.light,
+        routerConfig: appRouter,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

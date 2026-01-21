@@ -1,56 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import 'shell_cubit.dart';
-import 'shell_state.dart';
+class ShellPage extends StatefulWidget {
+  final Widget child;
 
-import '../home/home_page.dart';
-import '../job/job_page.dart';
-import '../event/event_page.dart';
-import '../profile/profile_page.dart';
-
-class ShellPage extends StatelessWidget {
-  const ShellPage({super.key});
-
-  static const _pages = [HomePage(), JobPage(), EventPage(), ProfilePage()];
+  const ShellPage({super.key, required this.child});
 
   @override
+  State<ShellPage> createState() => _ShellPageState();
+}
+
+class _ShellPageState extends State<ShellPage> {
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ShellCubit(),
-      child: BlocBuilder<ShellCubit, ShellState>(
-        builder: (context, state) {
-          return Scaffold(
-            body: IndexedStack(index: state.index, children: _pages),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: state.index,
-              onTap: context.read<ShellCubit>().changeTab,
-              type: BottomNavigationBarType.fixed,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.work_outline),
-                  activeIcon: Icon(Icons.work),
-                  label: 'Job',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.event_outlined),
-                  activeIcon: Icon(Icons.event),
-                  label: 'Event',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  activeIcon: Icon(Icons.person),
-                  label: 'Profile',
-                ),
-              ],
-            ),
-          );
+    final location = GoRouterState.of(context).uri.toString();
+
+    int currentIndex = 0;
+    if (location.startsWith('/app/job')) currentIndex = 1;
+    if (location.startsWith('/app/event')) currentIndex = 2;
+    if (location.startsWith('/app/profile')) currentIndex = 3;
+
+    return Scaffold(
+      body: widget.child,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              context.go('/app');
+              break;
+            case 1:
+              context.go('/app/job');
+              break;
+            case 2:
+              context.go('/app/event');
+              break;
+            case 3:
+              context.go('/app/profile');
+              break;
+          }
         },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.work_outline),
+            activeIcon: Icon(Icons.work),
+            label: 'Job',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_outlined),
+            activeIcon: Icon(Icons.event),
+            label: 'Event',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

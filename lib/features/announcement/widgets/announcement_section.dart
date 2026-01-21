@@ -16,65 +16,62 @@ class AnnouncementSection extends StatelessWidget {
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
 
-    return BlocProvider(
-      create: (_) => AnnouncementCubit()..loadAnnouncements(),
-      child: BlocBuilder<AnnouncementCubit, AnnouncementState>(
-        builder: (context, state) {
-          if (state is AnnouncementLoading) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+    return BlocBuilder<AnnouncementCubit, AnnouncementState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-          if (state is AnnouncementLoaded) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ===== Header =====
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Pengumuman',
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+        if (state.items.isNotEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ===== Header =====
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Pengumuman',
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: onSeeAll,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          'Lihat Semua',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                      InkWell(
-                        onTap: onSeeAll,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          child: Text(
-                            'Lihat Semua',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
-                const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
-                // ===== List =====
-                ...state.items.map((e) => AnnouncementCard(item: e)),
-              ],
-            );
-          }
+              // ===== List =====
+              ...state.items.map((e) => AnnouncementCard(item: e)),
+            ],
+          );
+        }
 
-          return const SizedBox.shrink();
-        },
-      ),
+        return const SizedBox.shrink();
+      },
     );
   }
 }

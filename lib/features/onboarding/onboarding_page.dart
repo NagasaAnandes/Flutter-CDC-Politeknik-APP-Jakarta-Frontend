@@ -45,42 +45,42 @@ class _OnboardingViewState extends State<_OnboardingView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OnboardingCubit, OnboardingState>(
-      builder: (context, state) {
-        // PageView contains only fully isolated slide widgets. Each slide
-        // manages its own Scaffold/Stack/background/hero/card to avoid
-        // visual overlap between pages.
-        return PageView(
-          controller: _pageController,
-          onPageChanged: context.read<OnboardingCubit>().onPageChanged,
-          children: [
-            OnboardingSlide1(
-              onNext: () {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              },
-            ),
-
-            OnboardingSlide2(
-              onNext: () {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              },
-            ),
-
-            OnboardingSlide3(
-              onFinish: () async {
-                await context.read<OnboardingCubit>().completeOnboarding();
-                if (context.mounted) context.goNamed('app');
-              },
-            ),
-          ],
-        );
+    return BlocListener<OnboardingCubit, OnboardingState>(
+      listenWhen: (prev, curr) =>
+          curr is OnboardingCompleted && prev is! OnboardingCompleted,
+      listener: (context, state) {
+        // ✅ SINGLE EXIT POINT
+        context.goNamed('home'); // == /app
       },
+      child: PageView(
+        controller: _pageController,
+        onPageChanged: context.read<OnboardingCubit>().onPageChanged,
+        children: [
+          OnboardingSlide1(
+            onNext: () {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+          ),
+          OnboardingSlide2(
+            onNext: () {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+          ),
+          OnboardingSlide3(
+            onFinish: () {
+              // ❌ UI TIDAK NAVIGASI
+              // ✅ UI HANYA EMIT INTENT
+              context.read<OnboardingCubit>().completeOnboarding();
+            },
+          ),
+        ],
+      ),
     );
   }
 }
