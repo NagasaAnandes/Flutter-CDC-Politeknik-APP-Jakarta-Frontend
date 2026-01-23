@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/announcement/pages/announcement_page.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/job/models/job_model.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/job/pages/job_detail_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/splash/splash_page.dart';
 import '../features/onboarding/onboarding_page.dart';
 import '../features/shell/shell_page.dart';
 import '../features/home/home_page.dart';
-import '../features/job/job_page.dart';
+import '../features/job/pages/job_page.dart';
 import '../features/event/event_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/announcement/bloc/announcement_cubit.dart';
@@ -16,8 +18,6 @@ import '../features/job/bloc/job_event.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-/// Provider untuk Cubit global (AnnouncementCubit, dll)
-/// HARUS dibuat sebelum MaterialApp agar tersedia di semua route
 Widget buildAppWithProviders({required Widget child}) {
   return MultiBlocProvider(
     providers: [
@@ -63,6 +63,16 @@ final GoRouter appRouter = GoRouter(
           path: '/app/job',
           name: 'job',
           builder: (context, state) => const JobPage(),
+          routes: [
+            GoRoute(
+              path: ':id',
+              name: 'jobDetail',
+              builder: (context, state) {
+                final job = state.extra as JobModel;
+                return JobDetailPage(job: job);
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/app/event',

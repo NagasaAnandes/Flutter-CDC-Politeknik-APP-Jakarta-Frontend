@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/job_model.dart';
 import 'job_card.dart';
 
@@ -12,7 +13,13 @@ class JobList extends StatelessWidget {
     return ListView.builder(
       itemCount: jobs.length,
       itemBuilder: (context, index) {
-        return JobCard(job: jobs[index]);
+        final job = jobs[index];
+        return JobCard(
+          job: job,
+          onTap: () {
+            context.go('/app/job/${job.id}', extra: job);
+          },
+        );
       },
     );
   }

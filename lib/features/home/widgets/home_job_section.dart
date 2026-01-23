@@ -49,7 +49,14 @@ class HomeJobSection extends StatelessWidget {
               const SizedBox(height: 8),
 
               // ===== PREVIEW LIST =====
-              ...preview.map((job) => JobCard(job: job)),
+              ...preview.map(
+                (job) => JobCard(
+                  job: job,
+                  onTap: () {
+                    context.go('/app/job/${job.id}', extra: job);
+                  },
+                ),
+              ),
             ],
           );
         }

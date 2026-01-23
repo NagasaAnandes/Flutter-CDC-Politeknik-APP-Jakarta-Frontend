@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'bloc/job_bloc.dart';
-import 'bloc/job_state.dart';
-import 'widgets/job_list.dart';
-import 'widgets/job_empty_view.dart';
+import '../bloc/job_bloc.dart';
+import '../bloc/job_state.dart';
+import '../widgets/job_list.dart';
+import '../widgets/job_empty_view.dart';
 
 class JobPage extends StatelessWidget {
   const JobPage({super.key});

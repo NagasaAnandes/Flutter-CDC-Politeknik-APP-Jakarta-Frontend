@@ -26,17 +26,29 @@ class JobBloc extends Bloc<JobEvent, JobState> {
     return [
       JobModel(
         id: '1',
-        title: 'Staff Administrasi',
-        company: 'PT Logistik Nusantara',
-        location: 'Jakarta',
-        postedAt: now.subtract(const Duration(hours: 2)),
+        title: 'SPV QC Produksi',
+        company: 'MOZAK Furnitures',
+        location: 'Jakarta Timur',
+        postedAt: now,
+        isPartner: true,
+        experience: "1 thn",
+        education: "D3",
+        companyLogoUrl: "assets/images/Logo_Politeknik_APP.png",
+        posterUrl: "assets/images/poster_1.jpg",
+        applyUrl:
+            "mailto:nagasa.anandes@gmail.com?subject=Lamaran%20IT%20Support",
       ),
       JobModel(
         id: '2',
-        title: 'Marketing Officer',
-        company: 'CV Kreatif Digital',
-        location: 'Bekasi',
+        title: 'Admin Office',
+        company: 'CV Maju Jaya',
+        location: 'Depok',
         postedAt: now.subtract(const Duration(days: 1)),
+        experience: "<1 thn",
+        education: "S2",
+        isPartner: false,
+        posterUrl: "assets/images/poster_2.jpg",
+        applyUrl: "https://stockbit.com/watchlist",
       ),
       JobModel(
         id: '3',
@@ -44,6 +56,11 @@ class JobBloc extends Bloc<JobEvent, JobState> {
         company: 'PT Solusi Teknologi',
         location: 'Tangerang',
         postedAt: now.subtract(const Duration(days: 2)),
+        isPartner: false,
+        experience: "2 thn",
+        education: "S1",
+        applyUrl:
+            "mailto:nagasa.anandes@gmail.com?subject=Lamaran%20IT%20Support",
       ),
       JobModel(
         id: '4',
@@ -51,6 +68,11 @@ class JobBloc extends Bloc<JobEvent, JobState> {
         company: 'PT Sinar Abadi',
         location: 'Depok',
         postedAt: now.subtract(const Duration(days: 3)),
+        isPartner: true,
+        experience: "10 thn",
+        education: "S1",
+        applyUrl:
+            "mailto:nagasa.anandes@gmail.com?subject=Lamaran%20IT%20Support",
       ),
     ];
   }
