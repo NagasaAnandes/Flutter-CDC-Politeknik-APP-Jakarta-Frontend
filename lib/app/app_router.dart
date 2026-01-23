@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/announcement/pages/announcement_page.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/event/bloc/event_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/event/bloc/event_event.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/event/models/event_model.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/event/pages/event_detail_page.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/job/models/job_model.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/job/pages/job_detail_page.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +14,7 @@ import '../features/onboarding/onboarding_page.dart';
 import '../features/shell/shell_page.dart';
 import '../features/home/home_page.dart';
 import '../features/job/pages/job_page.dart';
-import '../features/event/event_page.dart';
+import '../features/event/pages/event_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/announcement/bloc/announcement_cubit.dart';
 import '../features/job/bloc/job_bloc.dart';
@@ -25,6 +29,9 @@ Widget buildAppWithProviders({required Widget child}) {
         create: (context) => AnnouncementCubit()..loadAnnouncements(),
       ),
       BlocProvider<JobBloc>(create: (context) => JobBloc()..add(LoadJobs())),
+      BlocProvider<EventBloc>(
+        create: (context) => EventBloc()..add(const LoadEvents()),
+      ),
     ],
     child: child,
   );
@@ -78,6 +85,16 @@ final GoRouter appRouter = GoRouter(
           path: '/app/event',
           name: 'event',
           builder: (context, state) => const EventPage(),
+          routes: [
+            GoRoute(
+              path: ':id',
+              name: 'eventDetail',
+              builder: (context, state) {
+                final event = state.extra as EventModel;
+                return EventDetailPage(event: event);
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/app/profile',
