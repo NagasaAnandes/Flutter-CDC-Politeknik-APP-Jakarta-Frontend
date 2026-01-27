@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/utils/app_tracker.dart';
@@ -37,6 +39,24 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final value = await BookmarkService.toggleBookmark(widget.event.id);
     if (!mounted) return;
     setState(() => _isBookmarked = value);
+  }
+
+  Future<void> _registerEvent() async {
+    AppTracker.trackEventRegister(
+      eventId: widget.event.id,
+      organizer: widget.event.organizer,
+      registrationUrl: widget.event.registrationUrl,
+    );
+
+    final uri = Uri.parse(widget.event.registrationUrl);
+
+    final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak dapat membuka tautan pendaftaran')),
+      );
+    }
   }
 
   @override
@@ -166,7 +186,20 @@ class _EventDetailPageState extends State<EventDetailPage> {
             children: [
               // ===== BOOKMARK =====
               OutlinedButton(
-                onPressed: _toggleBookmark,
+                onPressed: () {
+                  requireAuth(
+                    context,
+                    onAuthenticated: _toggleBookmark,
+                    onUnauthenticated: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) =>
+                            LoginBottomSheet(onSuccess: _toggleBookmark),
+                      );
+                    },
+                  );
+                },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(48, 48),
                   padding: EdgeInsets.zero,
@@ -181,32 +214,19 @@ class _EventDetailPageState extends State<EventDetailPage> {
               // ===== REGISTER BUTTON =====
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () async {
-                    // ===== TRACKING =====
-                    AppTracker.trackEventRegister(
-                      eventId: widget.event.id,
-                      organizer: widget.event.organizer,
-                      registrationUrl: widget.event.registrationUrl,
+                  onPressed: () {
+                    requireAuth(
+                      context,
+                      onAuthenticated: _registerEvent,
+                      onUnauthenticated: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) =>
+                              LoginBottomSheet(onSuccess: _registerEvent),
+                        );
+                      },
                     );
-
-                    final uri = Uri.parse(widget.event.registrationUrl);
-
-                    final success = await launchUrl(
-                      uri,
-                      mode: LaunchMode.externalApplication,
-                    );
-
-                    if (!success) {
-                      if (!context.mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Tidak dapat membuka tautan pendaftaran',
-                          ),
-                        ),
-                      );
-                    }
                   },
                   child: const Text('Kunjungi Informasi Pendaftaran'),
                 ),

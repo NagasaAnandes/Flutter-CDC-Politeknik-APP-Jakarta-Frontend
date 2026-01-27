@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/app_tracker.dart';
 import '../../../core/services/bookmark_service.dart';
@@ -35,6 +37,25 @@ class _JobDetailPageState extends State<JobDetailPage> {
     final value = await BookmarkService.toggleBookmark(widget.job.id);
     if (!mounted) return;
     setState(() => _isBookmarked = value);
+  }
+
+  Future<void> _applyJob() async {
+    // ===== TRACKING =====
+    AppTracker.trackJobApply(
+      jobId: widget.job.id,
+      company: widget.job.company,
+      applyUrl: widget.job.applyUrl,
+    );
+
+    final uri = Uri.parse(widget.job.applyUrl);
+
+    final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak dapat membuka tautan pendaftaran')),
+      );
+    }
   }
 
   @override
@@ -174,7 +195,20 @@ class _JobDetailPageState extends State<JobDetailPage> {
             children: [
               // ===== BOOKMARK (DUMMY) =====
               OutlinedButton(
-                onPressed: _toggleBookmark,
+                onPressed: () {
+                  requireAuth(
+                    context,
+                    onAuthenticated: _toggleBookmark,
+                    onUnauthenticated: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) =>
+                            LoginBottomSheet(onSuccess: _toggleBookmark),
+                      );
+                    },
+                  );
+                },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(48, 48),
                   padding: EdgeInsets.zero,
@@ -189,32 +223,19 @@ class _JobDetailPageState extends State<JobDetailPage> {
               // ===== APPLY BUTTON =====
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () async {
-                    // ===== TRACKING =====
-                    AppTracker.trackJobApply(
-                      jobId: widget.job.id,
-                      company: widget.job.company,
-                      applyUrl: widget.job.applyUrl,
+                  onPressed: () {
+                    requireAuth(
+                      context,
+                      onAuthenticated: _applyJob,
+                      onUnauthenticated: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) =>
+                              LoginBottomSheet(onSuccess: _applyJob),
+                        );
+                      },
                     );
-
-                    final uri = Uri.parse(widget.job.applyUrl);
-
-                    final success = await launchUrl(
-                      uri,
-                      mode: LaunchMode.externalApplication,
-                    );
-
-                    if (!success) {
-                      if (!context.mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Tidak dapat membuka tautan pendaftaran',
-                          ),
-                        ),
-                      );
-                    }
                   },
                   child: const Text('Kunjungi Informasi Pendaftaran'),
                 ),
