@@ -1,6 +1,6 @@
+import 'package:flutter_cdc_poltek_app_frontend/core/services/local_storage_services.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth.dart';
 
-import '../../../services/local_storage_service.dart';
 import '../../../core/constants/storage_keys.dart';
 
 class AuthLocalService {

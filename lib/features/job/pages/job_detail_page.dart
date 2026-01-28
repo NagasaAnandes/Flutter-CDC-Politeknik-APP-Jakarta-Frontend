@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/bookmark/models/bookmark_item.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/app_tracker.dart';
 import '../../../core/services/bookmark_service.dart';
@@ -34,9 +36,17 @@ class _JobDetailPageState extends State<JobDetailPage> {
   }
 
   Future<void> _toggleBookmark() async {
-    final value = await BookmarkService.toggleBookmark(widget.job.id);
+    final bookmarked = await BookmarkService.toggleBookmark(
+      BookmarkItem(
+        id: widget.job.id,
+        type: 'job',
+        title: widget.job.title,
+        subtitle: widget.job.company,
+      ),
+    );
+
     if (!mounted) return;
-    setState(() => _isBookmarked = value);
+    setState(() => _isBookmarked = bookmarked);
   }
 
   Future<void> _applyJob() async {
@@ -65,7 +75,15 @@ class _JobDetailPageState extends State<JobDetailPage> {
     final textTheme = theme.textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Pekerjaan')),
+      appBar: AppBar(
+        title: const Text('Detail Pekerjaan'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            context.go('/app/job');
+          },
+        ),
+      ),
 
       // ===== BODY =====
       body: SingleChildScrollView(

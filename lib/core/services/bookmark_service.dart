@@ -1,33 +1,51 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/bookmark/models/bookmark_item.dart';
 
 class BookmarkService {
-  static const _key = 'bookmarked_jobs';
+  static const String _storageKey = 'bookmarks_v2';
 
   /// Ambil semua bookmark
-  static Future<Set<String>> getBookmarks() async {
+  static Future<List<BookmarkItem>> getAllBookmarks() async {
     final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_key) ?? [];
-    return list.toSet();
+    final raw = prefs.getStringList(_storageKey) ?? [];
+
+    return raw.map((e) => BookmarkItem.fromJson(jsonDecode(e))).toList();
   }
 
-  /// Toggle bookmark
-  static Future<bool> toggleBookmark(String jobId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final bookmarks = await getBookmarks();
+  /// Cek apakah ID sudah dibookmark
+  static Future<bool> isBookmarked(String id) async {
+    final items = await getAllBookmarks();
+    return items.any((e) => e.id == id);
+  }
 
-    if (bookmarks.contains(jobId)) {
-      bookmarks.remove(jobId);
+  /// Toggle bookmark (add / remove)
+  static Future<bool> toggleBookmark(BookmarkItem item) async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = await getAllBookmarks();
+
+    final exists = items.indexWhere((e) => e.id == item.id);
+
+    if (exists >= 0) {
+      items.removeAt(exists);
     } else {
-      bookmarks.add(jobId);
+      items.add(item);
     }
 
-    await prefs.setStringList(_key, bookmarks.toList());
-    return bookmarks.contains(jobId);
+    final encoded = items.map((e) => jsonEncode(e.toJson())).toList();
+
+    await prefs.setStringList(_storageKey, encoded);
+    return exists < 0;
   }
 
-  /// Cek status bookmark
-  static Future<bool> isBookmarked(String jobId) async {
-    final bookmarks = await getBookmarks();
-    return bookmarks.contains(jobId);
+  /// Remove specific bookmark
+  static Future<void> remove(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final items = await getAllBookmarks()
+      ..removeWhere((e) => e.id == id);
+
+    final encoded = items.map((e) => jsonEncode(e.toJson())).toList();
+
+    await prefs.setStringList(_storageKey, encoded);
   }
 }

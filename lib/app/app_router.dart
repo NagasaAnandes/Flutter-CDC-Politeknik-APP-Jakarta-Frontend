@@ -29,6 +29,9 @@ import '../features/event/bloc/event_event.dart';
 // ===== PROFILE =====
 import '../features/profile/profile_page.dart';
 
+// ===== BOOKMARK =====
+import '../features/bookmark/pages/bookmark_page.dart';
+
 // ===== AUTH (BUSINESS ONLY, NO UI) =====
 import '../features/auth/bloc/auth_bloc.dart';
 import '../features/auth/bloc/auth_event.dart';
@@ -147,6 +150,13 @@ final GoRouter appRouter = GoRouter(
           path: '/app/profile',
           name: 'profile',
           builder: (context, state) => const ProfilePage(),
+        ),
+
+        /// -------- BOOKMARK --------
+        GoRoute(
+          path: '/app/bookmark',
+          name: 'bookmark',
+          builder: (context, state) => const BookmarkPage(),
         ),
       ],
     ),

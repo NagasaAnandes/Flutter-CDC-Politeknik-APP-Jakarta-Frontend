@@ -16,9 +16,13 @@ class _ShellPageState extends State<ShellPage> {
     final location = GoRouterState.of(context).uri.toString();
 
     int currentIndex = 0;
+
     if (location.startsWith('/app/job')) currentIndex = 1;
     if (location.startsWith('/app/event')) currentIndex = 2;
-    if (location.startsWith('/app/profile')) currentIndex = 3;
+    if (location.startsWith('/app/profile') ||
+        location.startsWith('/app/bookmark')) {
+      currentIndex = 3;
+    }
 
     return Scaffold(
       body: widget.child,

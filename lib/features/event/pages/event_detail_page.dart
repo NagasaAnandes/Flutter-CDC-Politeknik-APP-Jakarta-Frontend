@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/bookmark/models/bookmark_item.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/utils/app_tracker.dart';
@@ -36,9 +38,17 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Future<void> _toggleBookmark() async {
-    final value = await BookmarkService.toggleBookmark(widget.event.id);
+    final bookmarked = await BookmarkService.toggleBookmark(
+      BookmarkItem(
+        id: widget.event.id,
+        type: 'event',
+        title: widget.event.title,
+        subtitle: widget.event.organizer,
+      ),
+    );
+
     if (!mounted) return;
-    setState(() => _isBookmarked = value);
+    setState(() => _isBookmarked = bookmarked);
   }
 
   Future<void> _registerEvent() async {
@@ -66,7 +76,15 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final textTheme = theme.textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Event')),
+      appBar: AppBar(
+        title: const Text('Detail Event'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            context.go('/app/event');
+          },
+        ),
+      ),
 
       // ===== BODY =====
       body: SingleChildScrollView(
