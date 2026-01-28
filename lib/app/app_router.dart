@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/notification/bloc/notification_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 // ===== CORE / APP =====
@@ -37,6 +38,9 @@ import '../features/auth/bloc/auth_bloc.dart';
 import '../features/auth/bloc/auth_event.dart';
 import '../features/auth/services/auth_local_services.dart';
 
+// ===== NOTIFICATION =====
+import '../features/notification/pages/notification_page.dart';
+
 /// Root navigator (dibutuhkan untuk dialog / bottom sheet nanti)
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -64,6 +68,9 @@ Widget buildAppWithProviders({required Widget child}) {
       BlocProvider<EventBloc>(
         create: (_) => EventBloc()..add(const LoadEvents()),
       ),
+
+      /// ===== NOTIFICATION =====
+      BlocProvider<NotificationBloc>(create: (_) => NotificationBloc()),
     ],
     child: child,
   );
@@ -157,6 +164,13 @@ final GoRouter appRouter = GoRouter(
           path: '/app/bookmark',
           name: 'bookmark',
           builder: (context, state) => const BookmarkPage(),
+        ),
+
+        /// -------- NOTIFICATION --------
+        GoRoute(
+          path: '/app/notification',
+          name: 'notification',
+          builder: (context, state) => const NotificationPage(),
         ),
       ],
     ),

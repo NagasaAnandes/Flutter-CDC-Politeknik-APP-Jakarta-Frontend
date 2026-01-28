@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -35,10 +36,11 @@ class HomeHeader extends StatelessWidget {
           ),
 
           // Action icons
-          Icon(
-            Icons.notifications_none,
-            color: colorScheme.onSurface,
-            size: 36,
+          IconButton(
+            icon: const Icon(Icons.notifications_none),
+            onPressed: () {
+              context.go('/app/notification');
+            },
           ),
         ],
       ),
