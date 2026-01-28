@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/bookmark/models/bookmark_item.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/notification/models/notification_item.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/notification/services/notification_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/app_tracker.dart';
@@ -46,11 +48,26 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
 
     if (!mounted) return;
+
     setState(() => _isBookmarked = bookmarked);
+
+    if (bookmarked) {
+      await NotificationService.add(
+        NotificationItem(
+          id: DateTime.now().toIso8601String(),
+          type: NotificationType.job,
+          title: 'Lowongan disimpan',
+          body:
+              '${widget.job.title} di ${widget.job.company} ditambahkan ke bookmark',
+          createdAt: DateTime.now(),
+          isRead: false,
+          referenceId: widget.job.id,
+        ),
+      );
+    }
   }
 
   Future<void> _applyJob() async {
-    // ===== TRACKING =====
     AppTracker.trackJobApply(
       jobId: widget.job.id,
       company: widget.job.company,
@@ -61,11 +78,27 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
     final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-    if (!success && mounted) {
+    if (!success) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak dapat membuka tautan pendaftaran')),
       );
+      return; // ⬅️ INI PENTING
     }
+
+    // 🔔 TRIGGER NOTIFICATION
+    await NotificationService.add(
+      NotificationItem(
+        id: DateTime.now().toIso8601String(),
+        type: NotificationType.job,
+        title: 'Lamaran dikirim',
+        body: 'Kamu mengunjungi halaman lamaran ${widget.job.title}',
+        createdAt: DateTime.now(),
+        isRead: false,
+        referenceId: widget.job.id,
+      ),
+    );
   }
 
   @override

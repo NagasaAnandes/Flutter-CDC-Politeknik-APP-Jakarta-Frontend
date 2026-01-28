@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/bookmark/models/bookmark_item.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/notification/models/notification_item.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/notification/services/notification_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -49,9 +51,24 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     if (!mounted) return;
     setState(() => _isBookmarked = bookmarked);
+
+    if (bookmarked) {
+      await NotificationService.add(
+        NotificationItem(
+          id: DateTime.now().toIso8601String(),
+          type: NotificationType.event,
+          title: 'Event disimpan',
+          body: '${widget.event.title} ditambahkan ke bookmark',
+          createdAt: DateTime.now(),
+          isRead: false,
+          referenceId: widget.event.id,
+        ),
+      );
+    }
   }
 
   Future<void> _registerEvent() async {
+    // ===== TRACKING =====
     AppTracker.trackEventRegister(
       eventId: widget.event.id,
       organizer: widget.event.organizer,
@@ -62,11 +79,27 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-    if (!success && mounted) {
+    if (!success) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak dapat membuka tautan pendaftaran')),
       );
+      return; // ⬅️ WAJIB
     }
+
+    // ===== 🔔 NOTIFICATION TRIGGER =====
+    await NotificationService.add(
+      NotificationItem(
+        id: DateTime.now().toIso8601String(),
+        type: NotificationType.event,
+        title: 'Pendaftaran event',
+        body: 'Kamu mengunjungi halaman pendaftaran ${widget.event.title}',
+        createdAt: DateTime.now(),
+        isRead: false,
+        referenceId: widget.event.id,
+      ),
+    );
   }
 
   @override
