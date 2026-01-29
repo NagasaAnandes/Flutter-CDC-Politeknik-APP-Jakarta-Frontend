@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/event/bloc/event_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/event/bloc/event_state.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_state.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/bloc/auth_bloc.dart';
@@ -108,12 +112,68 @@ class _NotificationPageState extends State<NotificationPage> {
                         title: item.title,
                         body: item.body,
                         isRead: item.isRead,
+                        createdAt: item.createdAt,
                         onTap: () {
+                          // 1️⃣ tandai notifikasi sudah dibaca
                           context.read<NotificationBloc>().add(
                             MarkNotificationRead(item.id),
                           );
 
-                          // navigation ke job/event nanti (Step D)
+                          // 2️⃣ navigasi berdasarkan tipe
+                          if (item.type == NotificationType.job) {
+                            final jobState = context.read<JobBloc>().state;
+
+                            if (jobState is JobLoaded) {
+                              final jobs = jobState.jobs
+                                  .where((j) => j.id == item.referenceId)
+                                  .toList();
+
+                              if (jobs.isNotEmpty) {
+                                final job = jobs.first;
+
+                                context.go('/app/job/${job.id}', extra: job);
+                              } else {
+                                _showNotFoundMessage(
+                                  context,
+                                  'Lowongan sudah tidak tersedia',
+                                );
+                              }
+                            } else {
+                              _showNotFoundMessage(
+                                context,
+                                'Data lowongan belum dimuat',
+                              );
+                            }
+                          }
+
+                          if (item.type == NotificationType.event) {
+                            final eventState = context.read<EventBloc>().state;
+
+                            if (eventState is EventLoaded) {
+                              final events = eventState.events
+                                  .where((e) => e.id == item.referenceId)
+                                  .toList();
+
+                              if (events.isNotEmpty) {
+                                final event = events.first;
+
+                                context.go(
+                                  '/app/event/${event.id}',
+                                  extra: event,
+                                );
+                              } else {
+                                _showNotFoundMessage(
+                                  context,
+                                  'Event sudah tidak tersedia',
+                                );
+                              }
+                            } else {
+                              _showNotFoundMessage(
+                                context,
+                                'Data event belum dimuat',
+                              );
+                            }
+                          }
                         },
                       );
                     },
@@ -141,4 +201,8 @@ class _NotificationPageState extends State<NotificationPage> {
         return Icons.notifications_outlined;
     }
   }
+}
+
+void _showNotFoundMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
