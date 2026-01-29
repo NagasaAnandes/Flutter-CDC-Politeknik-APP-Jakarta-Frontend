@@ -42,7 +42,9 @@ class ProfilePage extends StatelessWidget {
                 ProfileMenuItem(
                   icon: Icons.notifications_outlined,
                   title: 'Notifikasi',
-                  onTap: () {},
+                  onTap: () {
+                    context.go('/app/notification');
+                  },
                 ),
 
                 const Divider(height: 32),
