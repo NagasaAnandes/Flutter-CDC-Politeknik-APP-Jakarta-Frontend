@@ -12,11 +12,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   }
 
   Future<void> completeOnboarding() async {
-    // ✅ Simpan flag onboarding selesai
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(StorageKeys.onboardingSeen, true);
 
-    // ✅ Emit state FINAL
-    emit(const OnboardingCompleted());
+    emit(OnboardingCompleted(state.pageIndex));
   }
 }
