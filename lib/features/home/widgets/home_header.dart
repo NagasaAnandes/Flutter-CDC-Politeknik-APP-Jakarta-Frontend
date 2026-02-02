@@ -11,36 +11,49 @@ class HomeHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsetsGeometry.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Greeting text
+          // ===== GREETING =====
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Selamat Datang,',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface,
+                'Selamat Datang',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                'Mahasiswa Poltekapp!',
+                'Mahasiswa Poltekapp',
                 style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
                 ),
               ),
             ],
           ),
 
-          // Action icons
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {
+          // ===== NOTIFICATION ACTION =====
+          InkResponse(
+            radius: 24,
+            onTap: () {
               context.go('/app/notification');
             },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.notifications_none,
+                color: colorScheme.onSurface,
+              ),
+            ),
           ),
         ],
       ),

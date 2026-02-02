@@ -22,6 +22,7 @@ class HomeAnnouncementSection extends StatelessWidget {
           );
         }
 
+        // ===== HAS DATA =====
         if (state.items.isNotEmpty) {
           final preview = state.items.take(2).toList();
           final showSeeAll = state.items.length > 2;
@@ -29,31 +30,47 @@ class HomeAnnouncementSection extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== HEADER =====
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Pengumuman', style: theme.textTheme.titleMedium),
-                    if (showSeeAll)
-                      TextButton(
-                        onPressed: () => context.push('/announcement'),
-                        child: const Text('Lihat Semua'),
-                      ),
-                  ],
-                ),
+              // ===== SECTION HEADER =====
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Pengumuman',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (showSeeAll)
+                    TextButton(
+                      onPressed: () => context.push('/announcement'),
+                      child: const Text('Lihat Semua'),
+                    ),
+                ],
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               // ===== PREVIEW LIST =====
-              ...preview.map((item) => AnnouncementCard(item: item)),
+              ...preview.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: AnnouncementCard(item: item),
+                ),
+              ),
             ],
           );
         }
 
-        return const SizedBox.shrink();
+        // ===== EMPTY STATE =====
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            'Belum ada pengumuman terbaru.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        );
       },
     );
   }

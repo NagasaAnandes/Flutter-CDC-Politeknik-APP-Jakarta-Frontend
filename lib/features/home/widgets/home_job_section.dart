@@ -11,6 +11,8 @@ class HomeJobSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocBuilder<JobBloc, JobState>(
       builder: (context, state) {
         if (state is JobLoading) {
@@ -20,6 +22,7 @@ class HomeJobSection extends StatelessWidget {
           );
         }
 
+        // ===== HAS DATA =====
         if (state is JobLoaded && state.jobs.isNotEmpty) {
           final preview = state.jobs.take(3).toList();
           final showSeeAll = state.jobs.length > 3;
@@ -27,37 +30,52 @@ class HomeJobSection extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== HEADER (KONSISTEN) =====
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Pekerjaan',
-                      style: Theme.of(context).textTheme.titleMedium,
+              // ===== SECTION HEADER =====
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Pekerjaan',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    if (showSeeAll)
-                      TextButton(
-                        onPressed: () => context.go('/app/job'),
-                        child: const Text('Lihat Semua'),
-                      ),
-                  ],
-                ),
+                  ),
+                  if (showSeeAll)
+                    TextButton(
+                      onPressed: () => context.go('/app/job'),
+                      child: const Text('Lihat Semua'),
+                    ),
+                ],
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               // ===== PREVIEW LIST =====
               ...preview.map(
-                (job) => JobCard(
-                  job: job,
-                  onTap: () {
-                    context.go('/app/job/${job.id}', extra: job);
-                  },
+                (job) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: JobCard(
+                    job: job,
+                    onTap: () {
+                      context.go('/app/job/${job.id}', extra: job);
+                    },
+                  ),
                 ),
               ),
             ],
+          );
+        }
+
+        // ===== EMPTY STATE =====
+        if (state is JobLoaded && state.jobs.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'Belum ada lowongan pekerjaan tersedia.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         }
 

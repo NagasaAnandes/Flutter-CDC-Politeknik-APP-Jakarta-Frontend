@@ -11,6 +11,8 @@ class HomeEventSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocBuilder<EventBloc, EventState>(
       builder: (context, state) {
         if (state is EventLoading) {
@@ -20,6 +22,7 @@ class HomeEventSection extends StatelessWidget {
           );
         }
 
+        // ===== HAS DATA =====
         if (state is EventLoaded && state.events.isNotEmpty) {
           final preview = state.events.take(3).toList();
           final showSeeAll = state.events.length > 3;
@@ -27,37 +30,52 @@ class HomeEventSection extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== HEADER =====
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Event',
-                      style: Theme.of(context).textTheme.titleMedium,
+              // ===== SECTION HEADER =====
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Event',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    if (showSeeAll)
-                      TextButton(
-                        onPressed: () => context.go('/app/event'),
-                        child: const Text('Lihat Semua'),
-                      ),
-                  ],
-                ),
+                  ),
+                  if (showSeeAll)
+                    TextButton(
+                      onPressed: () => context.go('/app/event'),
+                      child: const Text('Lihat Semua'),
+                    ),
+                ],
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               // ===== PREVIEW LIST =====
               ...preview.map(
-                (event) => EventCard(
-                  event: event,
-                  onTap: () {
-                    context.go('/app/event/${event.id}', extra: event);
-                  },
+                (event) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: EventCard(
+                    event: event,
+                    onTap: () {
+                      context.go('/app/event/${event.id}', extra: event);
+                    },
+                  ),
                 ),
               ),
             ],
+          );
+        }
+
+        // ===== EMPTY STATE =====
+        if (state is EventLoaded && state.events.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'Belum ada event yang akan datang.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           );
         }
 
