@@ -42,7 +42,7 @@ class HomeAnnouncementSection extends StatelessWidget {
                   ),
                   if (showSeeAll)
                     TextButton(
-                      onPressed: () => context.push('/announcement'),
+                      onPressed: () => context.pushNamed('announcement'),
                       child: const Text('Lihat Semua'),
                     ),
                 ],

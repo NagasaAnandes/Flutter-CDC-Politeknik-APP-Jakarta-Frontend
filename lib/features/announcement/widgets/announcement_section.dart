@@ -20,27 +20,27 @@ class AnnouncementSection extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoading) {
           return const Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.symmetric(vertical: 24),
             child: Center(child: CircularProgressIndicator()),
           );
         }
 
+        // ===== HAS DATA =====
         if (state.items.isNotEmpty) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== Header =====
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Pengumuman',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+              // ===== HEADER =====
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Pengumuman',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                  if (onSeeAll != null)
                     InkWell(
                       onTap: onSeeAll,
                       borderRadius: BorderRadius.circular(8),
@@ -58,19 +58,32 @@ class AnnouncementSection extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
-              // ===== List =====
-              ...state.items.map((e) => AnnouncementCard(item: e)),
+              // ===== LIST =====
+              ...state.items.map(
+                (e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: AnnouncementCard(item: e),
+                ),
+              ),
             ],
           );
         }
 
-        return const SizedBox.shrink();
+        // ===== EMPTY STATE =====
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            'Belum ada pengumuman terbaru.',
+            style: textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        );
       },
     );
   }

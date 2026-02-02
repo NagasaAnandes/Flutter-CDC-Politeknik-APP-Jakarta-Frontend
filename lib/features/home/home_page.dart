@@ -8,6 +8,18 @@ import 'widgets/home_job_section.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  double _horizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    if (width >= 900) {
+      return 32; // tablet landscape
+    } else if (width >= 600) {
+      return 24; // tablet portrait
+    } else {
+      return 16; // mobile
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -42,15 +54,5 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-double _horizontalPadding(BuildContext context) {
-  final width = MediaQuery.of(context).size.width;
-
-  if (width >= 600) {
-    return 32; // tablet portrait
-  } else {
-    return 16; // mobile
   }
 }
