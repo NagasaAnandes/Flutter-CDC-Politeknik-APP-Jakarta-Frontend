@@ -10,11 +10,15 @@ class HomeHeader extends StatelessWidget {
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
+      decoration: BoxDecoration(
+        color: colorScheme.primary,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // ===== GREETING =====
           Column(
@@ -23,7 +27,7 @@ class HomeHeader extends StatelessWidget {
               Text(
                 'Selamat Datang',
                 style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+                  color: colorScheme.onPrimary.withValues(alpha: 0.85),
                 ),
               ),
               const SizedBox(height: 4),
@@ -31,7 +35,7 @@ class HomeHeader extends StatelessWidget {
                 'Mahasiswa Poltekapp',
                 style: textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
+                  color: colorScheme.onPrimary,
                 ),
               ),
             ],
@@ -46,12 +50,12 @@ class HomeHeader extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
+                color: colorScheme.onPrimary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.notifications_none,
-                color: colorScheme.onSurface,
+                color: colorScheme.onPrimary,
               ),
             ),
           ),

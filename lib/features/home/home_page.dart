@@ -22,35 +22,41 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = _horizontalPadding(context);
+
     return SafeArea(
       bottom: false,
       child: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: _horizontalPadding(context),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  HomeHeader(),
+        child: Column(
+          children: [
+            // ================= HEADER (FULL WIDTH) =================
+            const HomeHeader(),
 
-                  SizedBox(height: 16),
-                  HomeAnnouncementSection(),
+            // ================= CONTENT (CONSTRAINED) =================
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      SizedBox(height: 16),
+                      HomeAnnouncementSection(),
 
-                  SizedBox(height: 32),
-                  HomeJobSection(),
+                      SizedBox(height: 32),
+                      HomeJobSection(),
 
-                  SizedBox(height: 32),
-                  HomeEventSection(),
+                      SizedBox(height: 32),
+                      HomeEventSection(),
 
-                  SizedBox(height: 24),
-                ],
+                      SizedBox(height: 24),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
