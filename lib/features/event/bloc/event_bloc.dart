@@ -52,6 +52,14 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         eventDate: now.add(const Duration(days: 21)),
         registrationUrl: 'https://forms.gle/workshop-karier',
       ),
+      EventModel(
+        id: '4',
+        title: 'Workshop Persiapan Karier',
+        organizer: 'CDC Politeknik APP Jakarta',
+        location: 'Online (Zoom)',
+        eventDate: now.add(const Duration(days: 21)),
+        registrationUrl: 'https://forms.gle/workshop-karier',
+      ),
     ];
   }
 

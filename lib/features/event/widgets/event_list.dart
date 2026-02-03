@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'event_card.dart';
-import '../models/event_model.dart';
 import 'package:go_router/go_router.dart';
+
+import '../models/event_model.dart';
+import 'event_card.dart';
 
 class EventList extends StatelessWidget {
   final List<EventModel> events;
@@ -11,6 +12,7 @@ class EventList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
       itemCount: events.length,
       itemBuilder: (context, index) {
         final event = events[index];

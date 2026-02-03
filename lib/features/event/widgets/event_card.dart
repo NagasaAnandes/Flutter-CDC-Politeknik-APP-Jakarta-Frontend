@@ -15,13 +15,17 @@ class EventCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
+    final metas = [
+      MetaItem(icon: Icons.event_outlined, label: _formatDate(event.eventDate)),
+    ];
+
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      color: colorScheme.surface,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      color: colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outline),
+        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -44,10 +48,10 @@ class EventCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Event title
+                    // ===== TITLE =====
                     Text(
                       event.title,
-                      style: textTheme.bodyLarge?.copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
                       ),
@@ -55,30 +59,25 @@ class EventCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // Organizer + featured + location
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    // ===== ORGANIZER + LOCATION =====
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Flexible(
-                          child: Text(
-                            event.organizer,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                        Text(
+                          event.organizer,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
 
-                        if (event.isFeatured) ...[
-                          const SizedBox(width: 4),
+                        if (event.isFeatured)
                           Icon(
                             Icons.star,
                             size: 14,
                             color: colorScheme.primary,
                           ),
-                        ],
-
-                        const SizedBox(width: 6),
 
                         Text(
                           '• ${event.location}',
@@ -89,13 +88,10 @@ class EventCard extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
-                    // ===== EVENT DATE =====
-                    MetaItem(
-                      icon: Icons.event_outlined,
-                      label: _formatDate(event.eventDate),
-                    ),
+                    // ===== META (FUTURE-PROOF) =====
+                    Wrap(spacing: 16, runSpacing: 8, children: metas),
                   ],
                 ),
               ),

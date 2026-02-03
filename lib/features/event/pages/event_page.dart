@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/widgets/search_bar.dart';
-
 import '../bloc/event_bloc.dart';
 import '../bloc/event_state.dart';
 import '../widgets/event_empty.dart';
@@ -25,10 +24,26 @@ class _EventPageState extends State<EventPage> {
     super.dispose();
   }
 
+  double _horizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 900) return 32; // tablet landscape
+    if (width >= 600) return 24; // tablet portrait
+    return 16; // mobile
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Event')),
+      appBar: AppBar(
+        title: const Text('Event'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        surfaceTintColor: Colors.transparent,
+      ),
+
       body: BlocBuilder<EventBloc, EventState>(
         builder: (context, state) {
           if (state is EventLoading) {
@@ -48,9 +63,15 @@ class _EventPageState extends State<EventPage> {
 
             return Column(
               children: [
-                // ===== SEARCH BAR =====
-                Padding(
-                  padding: const EdgeInsets.all(16),
+                // ================= SEARCH SECTION =================
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                    _horizontalPadding(context),
+                    16,
+                    _horizontalPadding(context),
+                    16,
+                  ),
+                  color: colorScheme.surfaceContainerHighest,
                   child: AppSearchBar(
                     hintText: 'Cari event',
                     controller: _searchController,
@@ -60,15 +81,25 @@ class _EventPageState extends State<EventPage> {
                   ),
                 ),
 
-                // ===== LIST / EMPTY =====
+                // ================= CONTENT =================
                 Expanded(
-                  child: filteredEvents.isEmpty
-                      ? _query.isEmpty
-                            ? const EventEmptyView()
-                            : const _SearchEmptyView(
-                                message: 'Event tidak ditemukan',
-                              )
-                      : EventList(events: filteredEvents),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding(context),
+                        ),
+                        child: filteredEvents.isEmpty
+                            ? _query.isEmpty
+                                  ? const EventEmptyView()
+                                  : const _SearchEmptyView(
+                                      message: 'Event tidak ditemukan',
+                                    )
+                            : EventList(events: filteredEvents),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -92,15 +123,25 @@ class _SearchEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.search_off, size: 64),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
           ],
         ),
       ),
