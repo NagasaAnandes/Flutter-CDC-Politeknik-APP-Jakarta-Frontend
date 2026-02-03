@@ -9,7 +9,7 @@ class CompanyAvatar extends StatelessWidget {
     super.key,
     required this.company,
     this.logoUrl,
-    this.size = 44,
+    this.size = 48,
   });
 
   @override
@@ -21,8 +21,9 @@ class CompanyAvatar extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
       ),
       alignment: Alignment.center,
       child: _buildContent(context),
@@ -46,24 +47,25 @@ class CompanyAvatar extends StatelessWidget {
       );
     }
 
-    // === NETWORK IMAGE + PLACEHOLDER ===
+    // === NETWORK IMAGE ===
     return Image.network(
       logoUrl!,
       fit: BoxFit.contain,
+      errorBuilder: (_, _, _) {
+        return _InitialText(text: _getCompanyInitials(company));
+      },
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
 
-        return SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Theme.of(context).colorScheme.primary,
+        // Subtle placeholder (no spinner)
+        return Container(
+          width: size * 0.5,
+          height: size * 0.5,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(6),
           ),
         );
-      },
-      errorBuilder: (_, _, _) {
-        return _InitialText(text: _getCompanyInitials(company));
       },
     );
   }
@@ -81,7 +83,7 @@ class _InitialText extends StatelessWidget {
 
     return Text(
       text,
-      style: theme.textTheme.bodyMedium?.copyWith(
+      style: theme.textTheme.labelLarge?.copyWith(
         fontWeight: FontWeight.w600,
         color: colorScheme.onSurface,
       ),

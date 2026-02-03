@@ -17,11 +17,11 @@ class JobCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      color: colorScheme.surface,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      color: colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outline),
+        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -41,10 +41,10 @@ class JobCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Job title
+                    // ===== JOB TITLE =====
                     Text(
                       job.title,
-                      style: textTheme.bodyLarge?.copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
                       ),
@@ -52,30 +52,25 @@ class JobCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // Company + verified + location
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    // ===== COMPANY + META =====
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Flexible(
-                          child: Text(
-                            job.company,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                        Text(
+                          job.company,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
 
-                        if (job.isPartner) ...[
-                          const SizedBox(width: 4),
+                        if (job.isPartner)
                           Icon(
                             Icons.verified,
                             size: 14,
                             color: colorScheme.primary,
                           ),
-                        ],
-
-                        const SizedBox(width: 6),
 
                         Text(
                           '• ${job.location}',
@@ -86,16 +81,17 @@ class JobCard extends StatelessWidget {
                       ],
                     ),
 
-                    // ===== METADATA (OPTIONAL) =====
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
-                    Row(
+                    // ===== METADATA =====
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
                       children: [
                         MetaItem(
                           icon: Icons.work_outline,
                           label: job.experience,
                         ),
-                        const SizedBox(width: 16),
                         MetaItem(
                           icon: Icons.school_outlined,
                           label: job.education,

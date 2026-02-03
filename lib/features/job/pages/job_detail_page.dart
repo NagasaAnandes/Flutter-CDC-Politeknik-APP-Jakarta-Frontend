@@ -107,13 +107,20 @@ class _JobDetailPageState extends State<JobDetailPage> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
+    final metas = [
+      if (widget.job.experience.isNotEmpty)
+        (icon: Icons.work_outline, label: widget.job.experience),
+      if (widget.job.education.isNotEmpty)
+        (icon: Icons.school_outlined, label: widget.job.education),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Pekerjaan'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () {
-            context.go('/app/job');
+            context.pop();
           },
         ),
       ),
@@ -183,19 +190,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
             const Divider(),
             const SizedBox(height: 16),
 
-            // ===== META =====
-            Row(
-              children: [
-                MetaItem(
-                  icon: Icons.work_outline,
-                  label: widget.job.experience,
-                ),
-                const SizedBox(width: 24),
-                MetaItem(
-                  icon: Icons.school_outlined,
-                  label: widget.job.education,
-                ),
-              ],
+            // ===== META (FUTURE-PROOF) =====
+            Wrap(
+              spacing: 24,
+              runSpacing: 12,
+              children: metas.map((meta) {
+                return MetaItem(icon: meta.icon, label: meta.label);
+              }).toList(),
             ),
 
             const SizedBox(height: 16),

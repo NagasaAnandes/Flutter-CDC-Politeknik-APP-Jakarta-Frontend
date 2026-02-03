@@ -53,7 +53,7 @@ class HomeJobSection extends StatelessWidget {
               // ===== PREVIEW LIST =====
               ...preview.map(
                 (job) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: JobCard(
                     job: job,
                     onTap: () {
@@ -68,14 +68,23 @@ class HomeJobSection extends StatelessWidget {
 
         // ===== EMPTY STATE =====
         if (state is JobLoaded && state.jobs.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(
-              'Belum ada lowongan pekerjaan tersedia.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pekerjaan',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                'Belum ada lowongan pekerjaan tersedia.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           );
         }
 

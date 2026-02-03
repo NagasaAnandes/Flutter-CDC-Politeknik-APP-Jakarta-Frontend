@@ -11,6 +11,7 @@ class JobList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
       itemCount: jobs.length,
       itemBuilder: (context, index) {
         final job = jobs[index];

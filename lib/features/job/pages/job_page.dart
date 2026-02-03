@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/widgets/search_bar.dart';
-
 import '../bloc/job_bloc.dart';
 import '../bloc/job_state.dart';
 import '../widgets/job_list.dart';
@@ -25,10 +24,24 @@ class _JobPageState extends State<JobPage> {
     super.dispose();
   }
 
+  double _horizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 900) return 32;
+    if (width >= 600) return 24;
+    return 16;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Lowongan')),
+      appBar: AppBar(
+        title: const Text('Lowongan'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+      ),
       body: BlocBuilder<JobBloc, JobState>(
         builder: (context, state) {
           if (state is JobLoading) {
@@ -48,9 +61,15 @@ class _JobPageState extends State<JobPage> {
 
             return Column(
               children: [
-                // ===== SEARCH BAR =====
-                Padding(
-                  padding: const EdgeInsets.all(16),
+                // ================= SEARCH SECTION =================
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                    _horizontalPadding(context),
+                    16,
+                    _horizontalPadding(context),
+                    16,
+                  ),
+                  color: colorScheme.surfaceContainerHighest,
                   child: AppSearchBar(
                     hintText: 'Cari lowongan',
                     controller: _searchController,
@@ -60,15 +79,25 @@ class _JobPageState extends State<JobPage> {
                   ),
                 ),
 
-                // ===== LIST / EMPTY =====
+                // ================= CONTENT =================
                 Expanded(
-                  child: filteredJobs.isEmpty
-                      ? _query.isEmpty
-                            ? const JobEmptyView()
-                            : const _SearchEmptyView(
-                                message: 'Lowongan tidak ditemukan',
-                              )
-                      : JobList(jobs: filteredJobs),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding(context),
+                        ),
+                        child: filteredJobs.isEmpty
+                            ? _query.isEmpty
+                                  ? const JobEmptyView()
+                                  : const _SearchEmptyView(
+                                      message: 'Lowongan tidak ditemukan',
+                                    )
+                            : JobList(jobs: filteredJobs),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -92,15 +121,25 @@ class _SearchEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.search_off, size: 64),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
           ],
         ),
       ),
