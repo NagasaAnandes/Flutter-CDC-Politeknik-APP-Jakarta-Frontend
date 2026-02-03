@@ -6,13 +6,14 @@ import 'package:flutter_cdc_poltek_app_frontend/features/notification/models/not
 import 'package:flutter_cdc_poltek_app_frontend/features/notification/services/notification_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/utils/app_tracker.dart';
+
 import '../../../core/services/bookmark_service.dart';
+import '../../../core/utils/app_tracker.dart';
 
 import '../models/job_model.dart';
 import '../widgets/company_avatar.dart';
-import '../widgets/meta_item.dart';
 import '../widgets/job_poster.dart';
+import '../widgets/meta_item.dart';
 
 class JobDetailPage extends StatefulWidget {
   final JobModel job;
@@ -25,6 +26,7 @@ class JobDetailPage extends StatefulWidget {
 
 class _JobDetailPageState extends State<JobDetailPage> {
   bool _isBookmarked = false;
+
   @override
   void initState() {
     super.initState();
@@ -75,19 +77,15 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
 
     final uri = Uri.parse(widget.job.applyUrl);
-
     final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-    if (!success) {
-      if (!mounted) return;
-
+    if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak dapat membuka tautan pendaftaran')),
       );
-      return; // ⬅️ INI PENTING
+      return;
     }
 
-    // 🔔 TRIGGER NOTIFICATION
     await NotificationService.add(
       NotificationItem(
         id: DateTime.now().toIso8601String(),
@@ -107,6 +105,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
+    // ===== META (FUTURE-PROOF) =====
     final metas = [
       if (widget.job.experience.isNotEmpty)
         (icon: Icons.work_outline, label: widget.job.experience),
@@ -116,136 +115,152 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Pekerjaan'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          'Detail Pekerjaan',
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () {
-            context.pop();
-          },
+          onPressed: () => context.pop(),
         ),
       ),
 
-      // ===== BODY =====
+      // ================= BODY =================
       body: SingleChildScrollView(
-        // padding bawah DITAMBAH supaya tidak ketutup bottom bar
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ===== HEADER =====
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CompanyAvatar(
-                  company: widget.job.company,
-                  logoUrl: widget.job.companyLogoUrl,
-                  size: 56,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
+        padding: const EdgeInsets.only(bottom: 120),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ===== HEADER =====
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.job.title,
-                        style: textTheme.titleLarge?.copyWith(
-                          color: colorScheme.onSurface,
-                        ),
+                      CompanyAvatar(
+                        company: widget.job.company,
+                        logoUrl: widget.job.companyLogoUrl,
+                        size: 56,
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              widget.job.company,
-                              style: textTheme.bodyMedium?.copyWith(
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.job.title,
+                              style: textTheme.titleLarge?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.job.company,
+                                    style: textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                if (widget.job.isPartner) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.verified,
+                                    size: 16,
+                                    color: colorScheme.primary,
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.job.location,
+                              style: textTheme.bodySmall?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
                               ),
                             ),
-                          ),
-                          if (widget.job.isPartner) ...[
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.verified,
-                              size: 16,
-                              color: colorScheme.primary,
-                            ),
                           ],
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.job.location,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 16),
 
-            // ===== META (FUTURE-PROOF) =====
-            Wrap(
-              spacing: 24,
-              runSpacing: 12,
-              children: metas.map((meta) {
-                return MetaItem(icon: meta.icon, label: meta.label);
-              }).toList(),
-            ),
+                  // ===== META =====
+                  Wrap(
+                    spacing: 24,
+                    runSpacing: 12,
+                    children: metas
+                        .map(
+                          (meta) =>
+                              MetaItem(icon: meta.icon, label: meta.label),
+                        )
+                        .toList(),
+                  ),
 
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
 
-            // ===== JOB POSTER (OPTIONAL) =====
-            if (widget.job.posterUrl != null) ...[
-              OutlinedButton.icon(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) {
-                      return SafeArea(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(16),
-                          child: JobPoster(posterUrl: widget.job.posterUrl!),
-                        ),
-                      );
-                    },
-                  );
-                },
-                icon: const Icon(Icons.image_outlined),
-                label: const Text('Lihat Poster Lowongan'),
+                  // ===== POSTER =====
+                  if (widget.job.posterUrl != null) ...[
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.image_outlined),
+                      label: const Text('Lihat Poster Lowongan'),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => SafeArea(
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.all(16),
+                              child: JobPoster(
+                                posterUrl: widget.job.posterUrl!,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // ===== DESCRIPTION =====
+                  Text('Deskripsi Pekerjaan', style: textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  Text(
+                    _dummyDescription(widget.job),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-            ],
-
-            // ===== DESCRIPTION =====
-            Text('Deskripsi Pekerjaan', style: textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(
-              _dummyDescription(widget.job),
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
             ),
-          ],
+          ),
         ),
       ),
 
-      // ===== BOTTOM ACTION BAR (PERMANEN) =====
+      // ================= BOTTOM BAR =================
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // ===== BOOKMARK (DUMMY) =====
               OutlinedButton(
                 onPressed: () {
                   requireAuth(
@@ -269,10 +284,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                 ),
               ),
-
               const SizedBox(width: 12),
-
-              // ===== APPLY BUTTON =====
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
