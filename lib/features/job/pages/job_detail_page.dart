@@ -11,9 +11,9 @@ import '../../../core/services/bookmark_service.dart';
 import '../../../core/utils/app_tracker.dart';
 
 import '../models/job_model.dart';
-import '../widgets/company_avatar.dart';
-import '../widgets/job_poster.dart';
-import '../widgets/meta_item.dart';
+import '../../../core/widgets/company_avatar.dart';
+import '../../../core/widgets/poster_viewer.dart';
+import '../../../core/widgets/meta_item.dart';
 
 class JobDetailPage extends StatefulWidget {
   final JobModel job;
@@ -228,7 +228,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           builder: (_) => SafeArea(
                             child: SingleChildScrollView(
                               padding: const EdgeInsets.all(16),
-                              child: JobPoster(
+                              child: PosterViewer(
                                 posterUrl: widget.job.posterUrl!,
                               ),
                             ),

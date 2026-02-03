@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/job/widgets/company_avatar.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/job/widgets/meta_item.dart';
+import 'package:flutter_cdc_poltek_app_frontend/core/widgets/company_avatar.dart';
+import 'package:flutter_cdc_poltek_app_frontend/core/widgets/meta_item.dart';
 import '../models/job_model.dart';
 
 class JobCard extends StatelessWidget {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class JobPoster extends StatelessWidget {
+class PosterViewer extends StatelessWidget {
   final String posterUrl;
 
-  const JobPoster({super.key, required this.posterUrl});
+  const PosterViewer({super.key, required this.posterUrl});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../job/widgets/company_avatar.dart';
-import '../../job/widgets/meta_item.dart';
+import '../../../core/widgets/company_avatar.dart';
+import '../../../core/widgets/meta_item.dart';
 import '../models/event_model.dart';
 
 class EventCard extends StatelessWidget {

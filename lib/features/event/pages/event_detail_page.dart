@@ -11,9 +11,9 @@ import '../../../core/utils/app_tracker.dart';
 import '../../../core/services/bookmark_service.dart';
 
 import '../models/event_model.dart';
-import '../../job/widgets/company_avatar.dart';
-import '../../job/widgets/meta_item.dart';
-import '../../job/widgets/job_poster.dart';
+import '../../../core/widgets/company_avatar.dart';
+import '../../../core/widgets/meta_item.dart';
+import '../../../core/widgets/poster_viewer.dart';
 
 class EventDetailPage extends StatefulWidget {
   final EventModel event;
@@ -221,7 +221,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                           builder: (_) => SafeArea(
                             child: SingleChildScrollView(
                               padding: const EdgeInsets.all(16),
-                              child: JobPoster(
+                              child: PosterViewer(
                                 posterUrl: widget.event.posterUrl!,
                               ),
                             ),

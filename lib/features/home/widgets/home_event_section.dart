@@ -53,7 +53,7 @@ class HomeEventSection extends StatelessWidget {
               // ===== PREVIEW LIST =====
               ...preview.map(
                 (event) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: EventCard(
                     event: event,
                     onTap: () {
