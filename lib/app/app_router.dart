@@ -23,9 +23,9 @@ import '../features/job/bloc/job_detail_bloc.dart';
 // ===== EVENT =====
 import '../features/event/pages/event_page.dart';
 import '../features/event/pages/event_detail_page.dart';
-import '../features/event/models/event_model.dart';
 import '../features/event/bloc/event_bloc.dart';
 import '../features/event/bloc/event_event.dart';
+import '../features/event/bloc/event_detail_bloc.dart';
 
 // ===== PROFILE =====
 import '../features/profile/profile_page.dart';
@@ -141,8 +141,11 @@ final GoRouter appRouter = GoRouter(
               path: ':id',
               name: 'eventDetail',
               builder: (context, state) {
-                final event = state.extra as EventModel;
-                return EventDetailPage(event: event);
+                final eventId = state.pathParameters['id']!;
+                return BlocProvider(
+                  create: (_) => EventDetailBloc(),
+                  child: EventDetailPage(eventId: eventId),
+                );
               },
             ),
           ],

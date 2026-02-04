@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/auth/auth_guard.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/auth/widgets/login_bottom_sheet.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/bookmark/models/bookmark_item.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/notification/models/notification_item.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/notification/services/notification_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/core/widgets/detail_bottom_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/utils/app_tracker.dart';
 import '../../../core/services/bookmark_service.dart';
+import '../../../core/utils/app_tracker.dart';
 
+import '../../bookmark/models/bookmark_item.dart';
+import '../../notification/models/notification_item.dart';
+import '../../notification/services/notification_service.dart';
+
+import '../bloc/event_detail_bloc.dart';
+import '../bloc/event_detail_event.dart';
+import '../bloc/event_detail_state.dart';
 import '../models/event_model.dart';
-import '../../../core/widgets/company_avatar.dart';
-import '../../../core/widgets/meta_item.dart';
-import '../../../core/widgets/poster_viewer.dart';
+import '../widgets/event_detail_content.dart';
 
 class EventDetailPage extends StatefulWidget {
-  final EventModel event;
+  final String eventId;
 
-  const EventDetailPage({super.key, required this.event});
+  const EventDetailPage({super.key, required this.eventId});
 
   @override
   State<EventDetailPage> createState() => _EventDetailPageState();
@@ -30,22 +32,25 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   void initState() {
     super.initState();
+
+    context.read<EventDetailBloc>().add(LoadEventDetail(widget.eventId));
+
     _loadBookmark();
   }
 
   Future<void> _loadBookmark() async {
-    final value = await BookmarkService.isBookmarked(widget.event.id);
+    final value = await BookmarkService.isBookmarked(widget.eventId);
     if (!mounted) return;
     setState(() => _isBookmarked = value);
   }
 
-  Future<void> _toggleBookmark() async {
+  Future<void> _toggleBookmark(EventModel event) async {
     final bookmarked = await BookmarkService.toggleBookmark(
       BookmarkItem(
-        id: widget.event.id,
+        id: event.id,
         type: 'event',
-        title: widget.event.title,
-        subtitle: widget.event.organizer,
+        title: event.title,
+        subtitle: event.organizer,
       ),
     );
 
@@ -58,27 +63,26 @@ class _EventDetailPageState extends State<EventDetailPage> {
           id: DateTime.now().toIso8601String(),
           type: NotificationType.event,
           title: 'Event disimpan',
-          body: '${widget.event.title} ditambahkan ke bookmark',
+          body: '${event.title} ditambahkan ke bookmark',
           createdAt: DateTime.now(),
           isRead: false,
-          referenceId: widget.event.id,
+          referenceId: event.id,
         ),
       );
     }
   }
 
-  Future<void> _registerEvent() async {
+  Future<void> _registerEvent(EventModel event) async {
     AppTracker.trackEventRegister(
-      eventId: widget.event.id,
-      organizer: widget.event.organizer,
-      registrationUrl: widget.event.registrationUrl,
+      eventId: event.id,
+      organizer: event.organizer,
+      registrationUrl: event.registrationUrl,
     );
 
-    final uri = Uri.parse(widget.event.registrationUrl);
+    final uri = Uri.parse(event.registrationUrl);
     final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-    if (!success) {
-      if (!mounted) return;
+    if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tidak dapat membuka tautan pendaftaran')),
       );
@@ -90,228 +94,75 @@ class _EventDetailPageState extends State<EventDetailPage> {
         id: DateTime.now().toIso8601String(),
         type: NotificationType.event,
         title: 'Pendaftaran event',
-        body: 'Kamu mengunjungi halaman pendaftaran ${widget.event.title}',
+        body: 'Kamu mengunjungi halaman pendaftaran ${event.title}',
         createdAt: DateTime.now(),
         isRead: false,
-        referenceId: widget.event.id,
+        referenceId: event.id,
       ),
     );
-  }
-
-  double _horizontalPadding(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    if (width >= 900) return 32;
-    if (width >= 600) return 24;
-    return 16;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-
-    final metas = [
-      MetaItem(
-        icon: Icons.event_outlined,
-        label: _formatDate(widget.event.eventDate),
-      ),
-    ];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          'Detail Event',
-          style: textTheme.titleLarge?.copyWith(
-            color: colorScheme.onPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        title: const Text('Detail Event'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => context.pop(),
         ),
       ),
 
-      // ================= BODY =================
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 120),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: _horizontalPadding(context),
-                vertical: 24,
-              ),
+      // ===== BODY (SCROLL DI SINI) =====
+      body: BlocBuilder<EventDetailBloc, EventDetailState>(
+        builder: (context, state) {
+          if (state is EventDetailLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is EventDetailError) {
+            return Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ===== HEADER =====
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CompanyAvatar(
-                        company: widget.event.organizer,
-                        logoUrl: widget.event.organizerLogoUrl,
-                        size: 56,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.event.title,
-                              style: textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 6),
-                            Wrap(
-                              spacing: 6,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  widget.event.organizer,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                if (widget.event.isFeatured)
-                                  Icon(
-                                    Icons.star,
-                                    size: 16,
-                                    color: colorScheme.primary,
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.event.location,
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: theme.colorScheme.error,
                   ),
-
-                  const SizedBox(height: 24),
-                  const Divider(),
                   const SizedBox(height: 16),
-
-                  // ===== META =====
-                  Wrap(spacing: 24, runSpacing: 12, children: metas),
-
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 16),
-
-                  // ===== POSTER =====
-                  if (widget.event.posterUrl != null) ...[
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (_) => SafeArea(
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.all(16),
-                              child: PosterViewer(
-                                posterUrl: widget.event.posterUrl!,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.image_outlined),
-                      label: const Text('Lihat Poster Event'),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-
-                  // ===== DESCRIPTION =====
-                  Text('Deskripsi Event', style: textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text(
-                    _dummyDescription(widget.event),
-                    style: textTheme.bodyMedium,
-                  ),
+                  Text(state.message),
                 ],
               ),
-            ),
-          ),
-        ),
-      ),
+            );
+          }
 
-      // ================= CTA =================
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              OutlinedButton(
-                onPressed: () {
-                  requireAuth(
-                    context,
-                    onAuthenticated: _toggleBookmark,
-                    onUnauthenticated: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (_) =>
-                            LoginBottomSheet(onSuccess: _toggleBookmark),
-                      );
-                    },
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(48, 48),
-                  padding: EdgeInsets.zero,
+          if (state is EventDetailLoaded) {
+            final event = state.event;
+
+            return Column(
+              children: [
+                // 🔥 SCROLLABLE CONTENT
+                Expanded(child: EventDetailContent(event: event)),
+
+                // 🔥 FIXED CTA
+                DetailBottomBar(
+                  isSecondaryActive: _isBookmarked,
+                  onSecondaryAction: () => _toggleBookmark(event),
+                  onPrimaryAction: () => _registerEvent(event),
+                  primaryLabel: 'Kunjungi Informasi Pendaftaran',
                 ),
-                child: Icon(
-                  _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    requireAuth(
-                      context,
-                      onAuthenticated: _registerEvent,
-                      onUnauthenticated: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (_) =>
-                              LoginBottomSheet(onSuccess: _registerEvent),
-                        );
-                      },
-                    );
-                  },
-                  child: const Text('Kunjungi Informasi Pendaftaran'),
-                ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            );
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  String _dummyDescription(EventModel event) {
-    return 'CDC Politeknik APP Jakarta menyelenggarakan '
-        '${event.title} yang akan dilaksanakan di ${event.location}. '
-        'Event ini terbuka untuk mahasiswa dan alumni.\n\n'
-        'Silakan kunjungi tautan pendaftaran untuk informasi lebih lanjut.';
   }
 }

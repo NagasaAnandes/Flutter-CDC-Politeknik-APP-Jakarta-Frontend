@@ -20,7 +20,7 @@ class EventList extends StatelessWidget {
         return EventCard(
           event: event,
           onTap: () {
-            context.push('/app/event/${event.id}', extra: event);
+            context.push('/app/event/${event.id}');
           },
         );
       },
