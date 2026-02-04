@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/core/widgets/search_empty_view.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_event.dart';
 
 import '../../../core/widgets/search_bar.dart';
 import '../bloc/job_bloc.dart';
@@ -17,6 +19,12 @@ class JobPage extends StatefulWidget {
 class _JobPageState extends State<JobPage> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<JobBloc>().add(LoadJobs());
+  }
 
   @override
   void dispose() {
@@ -49,10 +57,7 @@ class _JobPageState extends State<JobPage> {
           }
 
           if (state is JobLoaded) {
-            final jobs = state.jobs;
-
-            // ===== FILTER LOGIC (LOCAL SEARCH) =====
-            final filteredJobs = jobs.where((job) {
+            final filteredJobs = state.jobs.where((job) {
               final keyword = _query.toLowerCase();
               return job.title.toLowerCase().contains(keyword) ||
                   job.company.toLowerCase().contains(keyword) ||
@@ -63,19 +68,25 @@ class _JobPageState extends State<JobPage> {
               children: [
                 // ================= SEARCH SECTION =================
                 Container(
-                  padding: EdgeInsets.fromLTRB(
-                    _horizontalPadding(context),
-                    16,
-                    _horizontalPadding(context),
-                    16,
-                  ),
+                  width: double.infinity,
                   color: colorScheme.surfaceContainerHighest,
-                  child: AppSearchBar(
-                    hintText: 'Cari lowongan',
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() => _query = value);
-                    },
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding(context),
+                        ),
+                        child: AppSearchBar(
+                          hintText: 'Cari lowongan',
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() => _query = value);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
 
@@ -91,7 +102,7 @@ class _JobPageState extends State<JobPage> {
                         child: filteredJobs.isEmpty
                             ? _query.isEmpty
                                   ? const JobEmptyView()
-                                  : const _SearchEmptyView(
+                                  : const SearchEmptyView(
                                       message: 'Lowongan tidak ditemukan',
                                     )
                             : JobList(jobs: filteredJobs),
@@ -109,39 +120,6 @@ class _JobPageState extends State<JobPage> {
 
           return const SizedBox.shrink();
         },
-      ),
-    );
-  }
-}
-
-class _SearchEmptyView extends StatelessWidget {
-  final String message;
-
-  const _SearchEmptyView({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
-        ),
       ),
     );
   }

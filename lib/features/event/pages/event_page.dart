@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/core/widgets/search_empty_view.dart';
 
 import '../../../core/widgets/search_bar.dart';
 import '../bloc/event_bloc.dart';
@@ -26,7 +27,7 @@ class _EventPageState extends State<EventPage> {
 
   double _horizontalPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 900) return 32; // tablet landscape
+    if (width >= 900) return 32; // tablet landscape / desktop
     if (width >= 600) return 24; // tablet portrait
     return 16; // mobile
   }
@@ -43,7 +44,6 @@ class _EventPageState extends State<EventPage> {
         foregroundColor: colorScheme.onPrimary,
         surfaceTintColor: Colors.transparent,
       ),
-
       body: BlocBuilder<EventBloc, EventState>(
         builder: (context, state) {
           if (state is EventLoading) {
@@ -51,10 +51,7 @@ class _EventPageState extends State<EventPage> {
           }
 
           if (state is EventLoaded) {
-            final events = state.events;
-
-            // ===== LOCAL SEARCH FILTER =====
-            final filteredEvents = events.where((event) {
+            final filteredEvents = state.events.where((event) {
               final keyword = _query.toLowerCase();
               return event.title.toLowerCase().contains(keyword) ||
                   event.organizer.toLowerCase().contains(keyword) ||
@@ -65,19 +62,25 @@ class _EventPageState extends State<EventPage> {
               children: [
                 // ================= SEARCH SECTION =================
                 Container(
-                  padding: EdgeInsets.fromLTRB(
-                    _horizontalPadding(context),
-                    16,
-                    _horizontalPadding(context),
-                    16,
-                  ),
+                  width: double.infinity,
                   color: colorScheme.surfaceContainerHighest,
-                  child: AppSearchBar(
-                    hintText: 'Cari event',
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() => _query = value);
-                    },
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: _horizontalPadding(context),
+                        ),
+                        child: AppSearchBar(
+                          hintText: 'Cari event',
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() => _query = value);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
 
@@ -93,7 +96,7 @@ class _EventPageState extends State<EventPage> {
                         child: filteredEvents.isEmpty
                             ? _query.isEmpty
                                   ? const EventEmptyView()
-                                  : const _SearchEmptyView(
+                                  : const SearchEmptyView(
                                       message: 'Event tidak ditemukan',
                                     )
                             : EventList(events: filteredEvents),
@@ -111,39 +114,6 @@ class _EventPageState extends State<EventPage> {
 
           return const SizedBox.shrink();
         },
-      ),
-    );
-  }
-}
-
-class _SearchEmptyView extends StatelessWidget {
-  final String message;
-
-  const _SearchEmptyView({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
-        ),
       ),
     );
   }

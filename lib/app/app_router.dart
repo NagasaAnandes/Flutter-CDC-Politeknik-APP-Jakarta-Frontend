@@ -16,9 +16,9 @@ import '../features/announcement/bloc/announcement_cubit.dart';
 // ===== JOB =====
 import '../features/job/pages/job_page.dart';
 import '../features/job/pages/job_detail_page.dart';
-import '../features/job/models/job_model.dart';
 import '../features/job/bloc/job_bloc.dart';
 import '../features/job/bloc/job_event.dart';
+import '../features/job/bloc/job_detail_bloc.dart';
 
 // ===== EVENT =====
 import '../features/event/pages/event_page.dart';
@@ -121,8 +121,11 @@ final GoRouter appRouter = GoRouter(
               path: ':id',
               name: 'jobDetail',
               builder: (context, state) {
-                final job = state.extra as JobModel;
-                return JobDetailPage(job: job);
+                final jobId = state.pathParameters['id']!;
+                return BlocProvider(
+                  create: (_) => JobDetailBloc(),
+                  child: JobDetailPage(jobId: jobId),
+                );
               },
             ),
           ],
