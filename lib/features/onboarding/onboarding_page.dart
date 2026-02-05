@@ -98,7 +98,7 @@ class _OnboardingViewState extends State<_OnboardingView> {
                   final isLast = state.pageIndex == _totalPages - 1;
 
                   return Container(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 24, 48),
+                    padding: const EdgeInsets.fromLTRB(16, 48, 16, 48),
 
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHighest,

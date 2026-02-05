@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/layout/app_content_layout.dart';
+import '../../../core/layout/app_layout_config.dart';
+
 import '../../../core/widgets/company_avatar.dart';
 import '../../../core/widgets/meta_item.dart';
 import '../../../core/widgets/poster_viewer.dart';
@@ -21,101 +24,104 @@ class EventDetailContent extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-            child: Column(
+      child: AppContentLayout(
+        type: LayoutType.detail,
+        extraPadding: const EdgeInsets.fromLTRB(
+          0,
+          24,
+          0,
+          96,
+        ), // ⬅️ aman dari CTA
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ===== HEADER =====
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ===== HEADER =====
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CompanyAvatar(
-                      company: event.organizer,
-                      logoUrl: event.organizerLogoUrl,
-                      size: 56,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                CompanyAvatar(
+                  company: event.organizer,
+                  logoUrl: event.organizerLogoUrl,
+                  size: 56,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(event.title, style: textTheme.titleLarge),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text(event.title, style: textTheme.titleLarge),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              Text(
-                                event.organizer,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              if (event.isFeatured)
-                                Icon(
-                                  Icons.star,
-                                  size: 16,
-                                  color: colorScheme.primary,
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
                           Text(
-                            event.location,
-                            style: textTheme.bodySmall?.copyWith(
+                            event.organizer,
+                            style: textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
                           ),
+                          if (event.isFeatured)
+                            Icon(
+                              Icons.star,
+                              size: 16,
+                              color: colorScheme.primary,
+                            ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 16),
-
-                // ===== META =====
-                Wrap(spacing: 24, runSpacing: 12, children: metas),
-
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
-
-                // ===== POSTER =====
-                if (event.posterUrl != null) ...[
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (_) => SafeArea(
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.all(16),
-                            child: PosterViewer(posterUrl: event.posterUrl!),
-                          ),
+                      const SizedBox(height: 4),
+                      Text(
+                        event.location,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.image_outlined),
-                    label: const Text('Lihat Poster Event'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                ],
-
-                // ===== DESCRIPTION =====
-                Text('Deskripsi Event', style: textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Text(_dummyDescription(event), style: textTheme.bodyMedium),
+                ),
               ],
             ),
-          ),
+
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+
+            // ===== META =====
+            Wrap(spacing: 24, runSpacing: 12, children: metas),
+
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+
+            // ===== POSTER =====
+            if (event.posterUrl != null) ...[
+              OutlinedButton.icon(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => SafeArea(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: PosterViewer(posterUrl: event.posterUrl!),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.image_outlined),
+                label: const Text('Lihat Poster Event'),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // ===== DESCRIPTION =====
+            Text('Deskripsi Event', style: textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              _dummyDescription(event),
+              style: textTheme.bodyMedium?.copyWith(height: 1.6),
+            ),
+          ],
         ),
       ),
     );

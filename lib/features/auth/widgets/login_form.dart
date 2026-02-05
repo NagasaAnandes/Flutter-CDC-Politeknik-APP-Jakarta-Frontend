@@ -14,35 +14,97 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _controller = TextEditingController();
+  final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _identifierController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   void _submit() {
-    final value = _controller.text.trim();
-    if (value.isEmpty) return;
+    final identifier = _identifierController.text.trim();
+    final password = _passwordController.text;
 
-    context.read<AuthBloc>().add(AuthLoginRequested(identifier: value));
+    if (identifier.isEmpty || password.isEmpty) return;
+
+    // NOTE: tetap pakai event lama (password belum dipakai)
+    context.read<AuthBloc>().add(AuthLoginRequested(identifier: identifier));
 
     widget.onSuccess();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
-          controller: _controller,
-          decoration: const InputDecoration(labelText: 'Nama / Email'),
+        // ===== TITLE =====
+        Text(
+          'Masuk',
+          style: theme.textTheme.headlineSmall,
+          textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 8),
+        Text(
+          'Gunakan akun kamu untuk melanjutkan',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+
+        const SizedBox(height: 32),
+
+        // ===== IDENTIFIER =====
+        TextField(
+          controller: _identifierController,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            labelText: 'NIM',
+            hintText: 'contoh: 2123xxxxx',
+          ),
+        ),
+
         const SizedBox(height: 16),
-        ElevatedButton(onPressed: _submit, child: const Text('Login')),
+
+        // ===== PASSWORD =====
+        TextField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            labelText: 'Password',
+            suffixIcon: IconButton(
+              tooltip: _obscurePassword
+                  ? 'Tampilkan password'
+                  : 'Sembunyikan password',
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+              ),
+              onPressed: () {
+                setState(() => _obscurePassword = !_obscurePassword);
+              },
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // ===== CTA =====
+        SizedBox(
+          height: 48,
+          child: ElevatedButton(onPressed: _submit, child: const Text('Login')),
+        ),
       ],
     );
   }

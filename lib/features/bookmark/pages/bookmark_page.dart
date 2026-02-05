@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/layout/app_content_layout.dart';
+import '../../../core/layout/app_layout_config.dart';
 import '../../../core/services/bookmark_service.dart';
+
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
 import '../../auth/widgets/login_bottom_sheet.dart';
@@ -26,7 +29,7 @@ class BookmarkPage extends StatefulWidget {
 class _BookmarkPageState extends State<BookmarkPage> {
   List<BookmarkItem> _items = [];
   BookmarkItem? _lastRemoved;
-  int? _lastRemovedIndex;
+  // int? _lastRemovedIndex;
   bool _isLoading = true;
 
   @override
@@ -35,16 +38,26 @@ class _BookmarkPageState extends State<BookmarkPage> {
     _load();
   }
 
+  Future<void> _load() async {
+    setState(() => _isLoading = true);
+
+    final data = await BookmarkService.getAllBookmarks();
+    if (!mounted) return;
+
+    setState(() {
+      _items = data.reversed.toList();
+      _isLoading = false;
+    });
+  }
+
   void _openBookmark(BuildContext context, BookmarkItem item) {
     if (item.type == 'job') {
       final jobState = context.read<JobBloc>().state;
 
       if (jobState is JobLoaded) {
         final jobs = jobState.jobs.where((e) => e.id == item.id).toList();
-
         if (jobs.isNotEmpty) {
           final job = jobs.first;
-
           context.goNamed(
             'jobDetail',
             pathParameters: {'id': job.id},
@@ -60,10 +73,8 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
       if (eventState is EventLoaded) {
         final events = eventState.events.where((e) => e.id == item.id).toList();
-
         if (events.isNotEmpty) {
           final event = events.first;
-
           context.goNamed(
             'eventDetail',
             pathParameters: {'id': event.id},
@@ -74,41 +85,37 @@ class _BookmarkPageState extends State<BookmarkPage> {
       }
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Data detail belum tersedia')));
-  }
-
-  Future<void> _load() async {
-    setState(() => _isLoading = true);
-
-    final data = await BookmarkService.getAllBookmarks();
-    if (!mounted) return;
-
-    setState(() {
-      _items = data.reversed.toList();
-      _isLoading = false;
-    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        duration: Duration(seconds: 4),
+        content: Text('Data detail belum tersedia'),
+      ),
+    );
   }
 
   Future<void> _removeWithUndo(BookmarkItem item, int index) async {
     setState(() {
       _lastRemoved = item;
-      _lastRemovedIndex = index;
       _items.removeAt(index);
     });
 
     await BookmarkService.remove(item.id);
-
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
       SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
         content: Text('${item.title} dihapus'),
         action: SnackBarAction(
           label: 'UNDO',
           onPressed: () async {
-            if (_lastRemoved != null && _lastRemovedIndex != null) {
+            if (_lastRemoved != null) {
               await BookmarkService.toggleBookmark(_lastRemoved!);
               await _load();
             }
@@ -116,67 +123,91 @@ class _BookmarkPageState extends State<BookmarkPage> {
         ),
       ),
     );
+
+    // 🔥 FORCE DISMISS (INI KUNCI NYA)
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bookmark Saya'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () {
-            context.go('/app/profile');
-          },
+          onPressed: () => context.go('/app/profile'),
         ),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthGuest) {
-            return Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) => LoginBottomSheet(
-                      onSuccess: () {
-                        Navigator.of(context).pop();
-                        _load();
-                      },
-                    ),
+      body: Container(
+        color: colorScheme.surface,
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            // ===== GUEST =====
+            if (state is AuthGuest) {
+              return AppContentLayout(
+                type: LayoutType.home,
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => LoginBottomSheet(
+                          onSuccess: () {
+                            Navigator.of(context).pop();
+                            _load();
+                          },
+                        ),
+                      );
+                    },
+                    child: const Text('Login untuk melihat bookmark'),
+                  ),
+                ),
+              );
+            }
+
+            // ===== LOADING =====
+            if (_isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // ===== EMPTY =====
+            if (_items.isEmpty) {
+              return const BookmarkEmptyView();
+            }
+
+            // ===== CONTENT =====
+            return AppContentLayout(
+              type: LayoutType.home,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                itemCount: _items.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = _items[index];
+
+                  return BookmarkListItem(
+                    leadingIcon: item.type == 'job'
+                        ? Icons.work_outline
+                        : Icons.event,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    onTap: () => _openBookmark(context, item),
+                    onRemove: () => _removeWithUndo(item, index),
                   );
                 },
-                child: const Text('Login untuk melihat bookmark'),
               ),
             );
-          }
-
-          if (_isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (_items.isEmpty) {
-            return const BookmarkEmptyView();
-          }
-
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: _items.length,
-            separatorBuilder: (_, _) => const Divider(),
-            itemBuilder: (context, index) {
-              final item = _items[index];
-
-              return BookmarkListItem(
-                leadingIcon: item.type == 'job' ? Icons.work : Icons.event,
-                title: item.title,
-                subtitle: item.subtitle,
-                onTap: () => _openBookmark(context, item),
-                onRemove: () => _removeWithUndo(item, index),
-              );
-            },
-          );
-        },
+          },
+        ),
       ),
     );
   }

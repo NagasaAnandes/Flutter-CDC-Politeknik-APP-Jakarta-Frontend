@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cdc_poltek_app_frontend/core/widgets/detail_bottom_bar.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_bloc.dart';
-import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_state.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_detail_state.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/job/widgets/job_detail_content.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -119,22 +118,42 @@ class _JobDetailPageState extends State<JobDetailPage> {
       ),
 
       // ===== BODY (SCROLL DI SINI) =====
-      body: BlocBuilder<JobBloc, JobState>(
+      body: BlocBuilder<JobDetailBloc, JobDetailState>(
         builder: (context, state) {
-          if (state is JobLoaded) {
-            final job = state.jobs.firstWhere((j) => j.id == widget.jobId);
+          if (state is JobDetailLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is JobDetailError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(state.message),
+                ],
+              ),
+            );
+          }
+
+          if (state is JobDetailLoaded) {
+            final job = state.job;
 
             return Column(
               children: [
                 // 🔥 SCROLLABLE CONTENT
                 Expanded(child: JobDetailContent(job: job)),
 
-                // 🔥 FIXED CTA
+                /// 🔥 FIXED CTA
                 DetailBottomBar(
                   isSecondaryActive: _isBookmarked,
                   onSecondaryAction: () => _toggleBookmark(job),
                   onPrimaryAction: () => _applyJob(job),
-                  primaryLabel: 'Kunjungi Informasi Pendaftaran',
+                  primaryLabel: 'Kunjungi Informasi Lowongan',
                 ),
               ],
             );

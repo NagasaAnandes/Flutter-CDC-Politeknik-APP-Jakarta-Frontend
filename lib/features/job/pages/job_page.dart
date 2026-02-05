@@ -4,6 +4,9 @@ import 'package:flutter_cdc_poltek_app_frontend/core/widgets/search_empty_view.d
 import 'package:flutter_cdc_poltek_app_frontend/features/job/bloc/job_event.dart';
 
 import '../../../core/widgets/search_bar.dart';
+import '../../../core/layout/app_content_layout.dart';
+import '../../../core/layout/app_layout_config.dart';
+
 import '../bloc/job_bloc.dart';
 import '../bloc/job_state.dart';
 import '../widgets/job_list.dart';
@@ -30,13 +33,6 @@ class _JobPageState extends State<JobPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  double _horizontalPadding(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    if (width >= 900) return 32;
-    if (width >= 600) return 24;
-    return 16;
   }
 
   @override
@@ -71,43 +67,29 @@ class _JobPageState extends State<JobPage> {
                   width: double.infinity,
                   color: colorScheme.surfaceContainerHighest,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 900),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _horizontalPadding(context),
-                        ),
-                        child: AppSearchBar(
-                          hintText: 'Cari lowongan',
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() => _query = value);
-                          },
-                        ),
-                      ),
+                  child: AppContentLayout(
+                    type: LayoutType.home,
+                    child: AppSearchBar(
+                      hintText: 'Cari lowongan',
+                      controller: _searchController,
+                      onChanged: (value) {
+                        setState(() => _query = value);
+                      },
                     ),
                   ),
                 ),
 
                 // ================= CONTENT =================
                 Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 900),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _horizontalPadding(context),
-                        ),
-                        child: filteredJobs.isEmpty
-                            ? _query.isEmpty
-                                  ? const JobEmptyView()
-                                  : const SearchEmptyView(
-                                      message: 'Lowongan tidak ditemukan',
-                                    )
-                            : JobList(jobs: filteredJobs),
-                      ),
-                    ),
+                  child: AppContentLayout(
+                    type: LayoutType.home,
+                    child: filteredJobs.isEmpty
+                        ? _query.isEmpty
+                              ? const JobEmptyView()
+                              : const SearchEmptyView(
+                                  message: 'Lowongan tidak ditemukan',
+                                )
+                        : JobList(jobs: filteredJobs),
                   ),
                 ),
               ],

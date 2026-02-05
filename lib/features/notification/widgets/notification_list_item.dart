@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class NotificationListItem extends StatelessWidget {
+  String _formatTime(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inMinutes < 1) return 'Baru saja';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} menit lalu';
+    if (diff.inHours < 24) return '${diff.inHours} jam lalu';
+    if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
   final IconData icon;
   final String title;
   final String body;
@@ -24,56 +35,60 @@ class NotificationListItem extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final backgroundColor = isRead
-        ? colorScheme.surfaceContainerHighest
-        : colorScheme.primaryContainer.withValues(alpha: 0.6);
-
-    return ListTile(
-      onTap: onTap,
-      tileColor: backgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      leading: CircleAvatar(
-        backgroundColor: isRead
-            ? colorScheme.surfaceContainerHighest
-            : colorScheme.primaryContainer,
-        child: Icon(
-          icon,
-          color: isRead
-              ? colorScheme.onSurfaceVariant
-              : colorScheme.onPrimaryContainer,
-        ),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outlineVariant),
       ),
-      title: Text(
-        title,
-        style: theme.textTheme.titleSmall?.copyWith(
-          fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-        ),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(body),
-          const SizedBox(height: 4),
-          Text(
-            _formatTime(createdAt),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                icon,
+                color: isRead
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.primary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: isRead ? FontWeight.w500 : FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      body,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _formatTime(createdAt),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
-  }
-
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-
-    if (diff.inMinutes < 1) return 'Baru saja';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} menit lalu';
-    if (diff.inHours < 24) return '${diff.inHours} jam lalu';
-    if (diff.inDays == 1) return 'Kemarin';
-
-    return DateFormat('dd MMM yyyy').format(time);
   }
 }
