@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cdc_poltek_app_frontend/features/notification/bloc/notification_bloc.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/settings/pages/about_app_page.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/settings/pages/settings_page.dart';
+import 'package:flutter_cdc_poltek_app_frontend/features/tracer/pages/tracer_page.dart';
 import 'package:go_router/go_router.dart';
 
 // ===== CORE / APP =====
@@ -177,6 +180,27 @@ final GoRouter appRouter = GoRouter(
           path: '/app/notification',
           name: 'notification',
           builder: (context, state) => const NotificationPage(),
+        ),
+
+        /// -------- SETTINGS --------
+        GoRoute(
+          path: '/app/settings',
+          name: 'settings',
+          builder: (context, state) => const SettingsPage(),
+          routes: [
+            GoRoute(
+              path: 'about',
+              name: 'aboutApp',
+              builder: (context, state) => const AboutAppPage(),
+            ),
+          ],
+        ),
+
+        /// -------- TRACER --------
+        GoRoute(
+          path: '/app/tracer',
+          name: 'tracer',
+          builder: (context, state) => const TracerPage(),
         ),
       ],
     ),
